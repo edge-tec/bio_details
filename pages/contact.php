@@ -8,16 +8,17 @@ if (!defined('APP_RUNNING')) { http_response_code(403); exit; }
 // Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
+    $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
     
     if ($action === 'contact') {
         if (Session::validateCsrfToken($_POST[CSRF_TOKEN_NAME] ?? '')) {
-            if (!isRateLimited('contact', 3, 600)) {
+            if (!isRateLimited('contact', 5, 600)) {
                 $validator = new Validator($_POST);
                 $validator->required('name', 'Name')
                           ->required('email', 'Email')
                           ->email('email', 'Email')
                           ->required('message', 'Message')
-                          ->minLength('message', 10, 'Message')
+                          ->minLength('message', 5, 'Message')
                           ->maxLength('message', 5000, 'Message');
                 
                 if ($validator->passes()) {
@@ -35,18 +36,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         // Send automatic email notification to admin email address
                         sendContactNotification($contactData);
 
-                        Session::flash('success', 'Thank you! Your message has been sent successfully. I\'ll get back to you soon.');
+                        $msg = 'Thank you! Your message has been sent successfully. I\'ll get back to you soon.';
+                        if ($isAjax) {
+                            header('Content-Type: application/json');
+                            echo json_encode(['success' => true, 'message' => $msg]);
+                            exit;
+                        }
+                        Session::flash('success', $msg);
                     } catch (Exception $e) {
-                        Session::flash('error', 'Sorry, something went wrong. Please try again later.');
+                        $msg = 'Sorry, something went wrong. Please try again later.';
+                        if ($isAjax) {
+                            header('Content-Type: application/json');
+                            echo json_encode(['success' => false, 'message' => $msg]);
+                            exit;
+                        }
+                        Session::flash('error', $msg);
                     }
                 } else {
-                    Session::flash('error', $validator->getFirstError());
+                    $msg = $validator->getFirstError();
+                    if ($isAjax) {
+                        header('Content-Type: application/json');
+                        echo json_encode(['success' => false, 'message' => $msg]);
+                        exit;
+                    }
+                    Session::flash('error', $msg);
                 }
             } else {
-                Session::flash('error', 'Too many submissions. Please wait a few minutes before trying again.');
+                $msg = 'Too many submissions. Please wait a few minutes before trying again.';
+                if ($isAjax) {
+                    header('Content-Type: application/json');
+                    echo json_encode(['success' => false, 'message' => $msg]);
+                    exit;
+                }
+                Session::flash('error', $msg);
             }
         } else {
-            Session::flash('error', 'Invalid security token. Please try again.');
+            $msg = 'Invalid security token. Please try again.';
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => $msg]);
+                exit;
+            }
+            Session::flash('error', $msg);
         }
         redirect(url('contact'));
     }
@@ -133,7 +164,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="col-lg-7" data-aos="fade-right">
                 <div class="glass-card">
                     <h4 class="mb-4"><i class="bi bi-chat-dots me-2 text-primary"></i>Send Me a Message</h4>
-                    <form method="post" class="contact-form" id="contactForm">
+                    <div id="formAlert" class="mb-3 d-none"></div>
+                    <form method="post" action="<?php echo url('contact'); ?>" class="contact-form" id="contactForm">
                         <?php echo Session::csrfField(); ?>
                         <input type="hidden" name="action" value="contact">
                         <div class="row g-3">
