@@ -4,9 +4,6 @@
  * @package PersonalBiography
  */
 
-// Enable output buffering to prevent header errors during redirects
-ob_start();
-
 define('APP_RUNNING', true);
 
 require_once __DIR__ . '/../config/config.php';
@@ -57,10 +54,12 @@ if (!file_exists($adminFile)) {
 
 $adminTitle = ucfirst(str_replace('_', ' ', $page)) . ' Manager';
 
-// Render admin layout
-require_once TEMPLATES_PATH . 'admin/header.php';
+// Execute admin page controller logic FIRST before sending any HTML headers
+ob_start();
 require_once $adminFile;
-require_once TEMPLATES_PATH . 'admin/footer.php';
+$adminContent = ob_get_clean();
 
-// Flush output buffer
-ob_end_flush();
+// Now render admin layout cleanly
+require_once TEMPLATES_PATH . 'admin/header.php';
+echo $adminContent;
+require_once TEMPLATES_PATH . 'admin/footer.php';
