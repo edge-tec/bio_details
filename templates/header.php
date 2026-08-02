@@ -105,6 +105,20 @@ try {
             <span class="loading-text"><?php echo e($profile['full_name'] ?? SITE_NAME); ?></span>
         </div>
     </div>
+    <script>
+        (function() {
+            var loader = document.getElementById('loading-screen');
+            if (loader) {
+                var dismiss = function() {
+                    loader.style.transition = 'opacity 0.3s ease';
+                    loader.style.opacity = '0';
+                    setTimeout(function() { loader.style.display = 'none'; }, 300);
+                };
+                window.addEventListener('load', dismiss);
+                setTimeout(dismiss, 300);
+            }
+        })();
+    </script>
 
     <!-- ============================================ -->
     <!-- NAVIGATION BAR                               -->
@@ -121,47 +135,35 @@ try {
                     </span>
                 <?php endif; ?>
             </a>
-            
-            <!-- Dark/Light Mode Toggle (visible on mobile too) -->
-            <div class="d-flex align-items-center order-lg-last ms-lg-3">
-                <button type="button" class="btn btn-theme-toggle" id="themeToggle" aria-label="Toggle dark/light mode">
-                    <i class="bi bi-sun-fill theme-icon-light"></i>
-                    <i class="bi bi-moon-fill theme-icon-dark"></i>
-                </button>
-            </div>
-            
-            <!-- Hamburger Toggle -->
-            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <div class="hamburger" id="hamburger">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
+
+            <!-- Mobile Toggle Button -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
             </button>
-            
-            <!-- Navigation Menu -->
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav mx-auto">
+
+            <!-- Navbar Links -->
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
                     <?php foreach ($navMenu as $item): ?>
-                    <li class="nav-item">
-                        <a class="nav-link <?php echo activeClass($item['slug']); ?>" href="<?php echo url($item['slug']); ?>">
-                            <i class="<?php echo e($item['icon']); ?> me-2"></i>
-                            <?php echo e($item['label']); ?>
-                        </a>
-                    </li>
+                        <li class="nav-item">
+                            <a class="nav-link <?php echo activeClass($item['slug']); ?>" href="<?php echo url($item['slug']); ?>">
+                                <i class="bi <?php echo $item['icon']; ?> me-1"></i>
+                                <?php echo e($item['label']); ?>
+
+                            </a>
+                        </li>
                     <?php endforeach; ?>
                 </ul>
+
+                <!-- Theme Toggle Button -->
+                <div class="d-flex align-items-center ms-lg-3 mt-3 mt-lg-0">
+                    <button class="btn btn-icon theme-toggle-btn" id="themeToggle" type="button" aria-label="Toggle Dark/Light Mode" title="Toggle Dark/Light Mode">
+                        <i class="bi bi-sun-fill"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </nav>
 
-    <!-- Flash Messages -->
-    <?php $flashHtml = renderFlashMessages(); ?>
-    <?php if (!empty($flashHtml)): ?>
-    <div class="container mt-5 pt-5">
-        <?php echo $flashHtml; ?>
-    </div>
-    <?php endif; ?>
-
     <!-- Main Content Wrapper -->
-    <main id="main-content">
+    <main class="main-content">
