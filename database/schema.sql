@@ -6,16 +6,8 @@
 -- Run this SQL file to create all required tables
 -- and seed initial data.
 -- 
--- Database: biography_db
 -- Charset: utf8mb4
 -- ============================================
-
--- Create database if not exists
-CREATE DATABASE IF NOT EXISTS `biography_db` 
-    CHARACTER SET utf8mb4 
-    COLLATE utf8mb4_unicode_ci;
-
-USE `biography_db`;
 
 -- ============================================
 -- TABLE: users (Admin authentication)
