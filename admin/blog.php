@@ -162,31 +162,33 @@ $posts = $db->fetchAll("SELECT b.*, bc.name as category_name FROM blog b LEFT JO
 
             <div class="col-12">
                 <label class="form-label">Full Content *</label>
-                <textarea name="content" id="tinymce-editor" class="form-control" rows="10" required><?php echo $editPost['content'] ?? ''; ?></textarea>
+                <textarea name="content" id="editor" class="form-control" rows="10"><?php echo $editPost['content'] ?? ''; ?></textarea>
             </div>
 
-            <!-- TinyMCE Rich Text Editor -->
-            <script src="https://cdn.tiny.cloud/1/hrqokcibvy5tkqzlmfn8fg2z38xfj0cudp79ms5dd9j9xrkr/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+            <!-- CKEditor 5 (100% Free - No API Key or Domain Registration Needed) -->
+            <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+            <style>
+                .ck-editor__editable_inline {
+                    min-height: 350px;
+                    color: #212529;
+                }
+                .ck.ck-editor {
+                    width: 100%;
+                }
+            </style>
             <script>
-            tinymce.init({
-                selector: '#tinymce-editor',
-                height: 400,
-                menubar: true,
-                plugins: [
-                    'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
-                    'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                    'insertdatetime', 'media', 'table', 'help', 'wordcount'
-                ],
-                toolbar: 'undo redo | blocks | bold italic underline strikethrough | ' +
-                    'alignleft aligncenter alignright alignjustify | ' +
-                    'bullist numlist outdent indent | link image media | ' +
-                    'forecolor backcolor | removeformat | code fullscreen | help',
-                content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 15px; line-height: 1.7; }',
-                branding: false,
-                promotion: false,
-                skin: (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'oxide-dark' : 'oxide'),
-                content_css: (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default'),
-            });
+            ClassicEditor
+                .create(document.querySelector('#editor'), {
+                    toolbar: [
+                        'heading', '|',
+                        'bold', 'italic', 'underline', 'strikethrough', 'link', '|',
+                        'bulletedList', 'numberedList', 'blockQuote', '|',
+                        'insertTable', 'undo', 'redo'
+                    ]
+                })
+                .catch(error => {
+                    console.error(error);
+                });
             </script>
 
             <!-- SEO Settings -->
