@@ -161,9 +161,33 @@ $posts = $db->fetchAll("SELECT b.*, bc.name as category_name FROM blog b LEFT JO
             </div>
 
             <div class="col-12">
-                <label class="form-label">Full Content (HTML supported) *</label>
-                <textarea name="content" class="form-control" rows="10" required><?php echo e($editPost['content'] ?? ''); ?></textarea>
+                <label class="form-label">Full Content *</label>
+                <textarea name="content" id="tinymce-editor" class="form-control" rows="10" required><?php echo e($editPost['content'] ?? ''); ?></textarea>
             </div>
+
+            <!-- TinyMCE Rich Text Editor -->
+            <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+            <script>
+            tinymce.init({
+                selector: '#tinymce-editor',
+                height: 400,
+                menubar: true,
+                plugins: [
+                    'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                    'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                    'insertdatetime', 'media', 'table', 'help', 'wordcount'
+                ],
+                toolbar: 'undo redo | blocks | bold italic underline strikethrough | ' +
+                    'alignleft aligncenter alignright alignjustify | ' +
+                    'bullist numlist outdent indent | link image media | ' +
+                    'forecolor backcolor | removeformat | code fullscreen | help',
+                content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 15px; line-height: 1.7; }',
+                branding: false,
+                promotion: false,
+                skin: (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'oxide-dark' : 'oxide'),
+                content_css: (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default'),
+            });
+            </script>
 
             <!-- SEO Settings -->
             <div class="col-12 mt-4">
