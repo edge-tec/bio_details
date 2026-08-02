@@ -359,4 +359,87 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
+    // ============================================
+    // GALLERY CATEGORY FILTER & LIGHTBOX MODAL
+    // ============================================
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const galleryItems = document.querySelectorAll('.gallery-item');
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+    const lightboxCaption = document.getElementById('lightboxCaption');
+    const lightboxClose = document.getElementById('lightboxClose');
+
+    // 1. Filter Category Buttons
+    if (filterBtns.length > 0 && galleryItems.length > 0) {
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                const filter = btn.getAttribute('data-filter');
+
+                galleryItems.forEach(item => {
+                    const category = item.getAttribute('data-category');
+                    if (filter === 'all' || category === filter) {
+                        item.style.display = 'block';
+                        setTimeout(() => {
+                            item.style.opacity = '1';
+                            item.style.transform = 'scale(1)';
+                        }, 50);
+                    } else {
+                        item.style.opacity = '0';
+                        item.style.transform = 'scale(0.8)';
+                        setTimeout(() => {
+                            item.style.display = 'none';
+                        }, 300);
+                    }
+                });
+            });
+        });
+    }
+
+    // 2. Lightbox Open / Close on Image Click
+    if (galleryItems.length > 0 && lightbox && lightboxImg) {
+        galleryItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const img = item.querySelector('img');
+                const caption = item.querySelector('.gallery-caption');
+                if (img) {
+                    lightboxImg.src = img.src;
+                    if (lightboxCaption) {
+                        lightboxCaption.textContent = caption ? caption.textContent.trim() : (img.alt || '');
+                    }
+                    lightbox.style.display = 'flex';
+                    setTimeout(() => {
+                        lightbox.classList.add('active');
+                    }, 10);
+                }
+            });
+        });
+
+        const closeLightbox = () => {
+            lightbox.classList.remove('active');
+            setTimeout(() => {
+                lightbox.style.display = 'none';
+                lightboxImg.src = '';
+            }, 300);
+        };
+
+        if (lightboxClose) {
+            lightboxClose.addEventListener('click', closeLightbox);
+        }
+
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) {
+                closeLightbox();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+                closeLightbox();
+            }
+        });
+    }
 });

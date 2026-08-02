@@ -148,6 +148,15 @@ if (!defined('APP_RUNNING')) {
     <?php endif; ?>
 
     <!-- ============================================ -->
+    <!-- GALLERY LIGHTBOX OVERLAY                     -->
+    <!-- ============================================ -->
+    <div class="lightbox" id="lightbox">
+        <button type="button" class="lightbox-close" id="lightboxClose" aria-label="Close Lightbox">&times;</button>
+        <img src="" id="lightboxImg" alt="Enlarged Image">
+        <div class="lightbox-caption" id="lightboxCaption"></div>
+    </div>
+
+    <!-- ============================================ -->
     <!-- SCRIPTS                                      -->
     <!-- ============================================ -->
     
