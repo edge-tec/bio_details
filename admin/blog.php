@@ -162,11 +162,11 @@ $posts = $db->fetchAll("SELECT b.*, bc.name as category_name FROM blog b LEFT JO
 
             <div class="col-12">
                 <label class="form-label">Full Content *</label>
-                <textarea name="content" id="tinymce-editor" class="form-control" rows="10" required><?php echo e($editPost['content'] ?? ''); ?></textarea>
+                <textarea name="content" id="tinymce-editor" class="form-control" rows="10" required><?php echo $editPost['content'] ?? ''; ?></textarea>
             </div>
 
             <!-- TinyMCE Rich Text Editor -->
-            <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+            <script src="https://cdn.tiny.cloud/1/hrqokcibvy5tkqzlmfn8fg2z38xfj0cudp79ms5dd9j9xrkr/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
             <script>
             tinymce.init({
                 selector: '#tinymce-editor',
