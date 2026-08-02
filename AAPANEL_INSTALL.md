@@ -65,11 +65,6 @@ chmod -R 777 /www/wwwroot/yourdomain.com/assets/uploads
 chmod -R 777 /www/wwwroot/yourdomain.com/logs
 ```
 
-### Option B: Via aaPanel Git Deployment Tool
-1. In aaPanel, go to **Website** > Click your domain > **Git**.
-2. Add Repository URL: `https://github.com/edge-tec/bio_details.git`.
-3. Pull code into `/www/wwwroot/yourdomain.com`.
-
 ---
 
 ## Step 4: Configure `config/config.php`
@@ -77,9 +72,6 @@ chmod -R 777 /www/wwwroot/yourdomain.com/logs
 Open `/www/wwwroot/yourdomain.com/config/config.php` in aaPanel File Editor and update:
 
 ```php
-/** Site URL - your production domain with trailing slash */
-define('SITE_URL', 'https://yourdomain.com/');
-
 /** Database Credentials */
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'biography_db');     // Your aaPanel DB Name
@@ -96,26 +88,15 @@ define('DB_PASS', 'YOUR_DB_PASSWORD'); // Your aaPanel DB Password
 2. Paste the following Nginx rewrite rule:
 
 ```nginx
-location / {
-    try_files $uri $uri/ /index.php?page=$uri&$args;
-}
-
-# Clean URL routes
-location ~ ^/(admin|about|skills|experience|education|portfolio|projects|services|achievements|certificates|resume|blog|gallery|testimonials|contact|privacy|terms|404)/?$$ {
+if (!-e $request_filename) {
     rewrite ^/admin/?$ /admin/index.php last;
     rewrite ^/admin/([a-zA-Z0-9_-]+)/?$ /admin/index.php?page=$1 last;
-    rewrite ^/blog/([a-zA-Z0-9_-]+)/?$ /index.php?page=blog-single&slug=$1 last;
     rewrite ^/blog/category/([a-zA-Z0-9_-]+)/?$ /index.php?page=blog&category=$1 last;
     rewrite ^/blog/tag/([a-zA-Z0-9_-]+)/?$ /index.php?page=blog&tag=$1 last;
+    rewrite ^/blog/([a-zA-Z0-9_-]+)/?$ /index.php?page=blog-single&slug=$1 last;
     rewrite ^/portfolio/([a-zA-Z0-9_-]+)/?$ /index.php?page=portfolio&slug=$1 last;
     rewrite ^/sitemap\.xml$ /sitemap.php last;
     rewrite ^/([a-zA-Z0-9_-]+)/?$ /index.php?page=$1 last;
-}
-
-# Block direct access to protected directories
-location ~ ^/(config|classes|functions|templates|database|logs)/ {
-    deny all;
-    return 403;
 }
 ```
 3. Click **Save**.
