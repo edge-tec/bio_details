@@ -23,6 +23,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'newsletter_enabled'    => isset($_POST['newsletter_enabled']) ? '1' : '0',
             'comments_enabled'      => isset($_POST['comments_enabled']) ? '1' : '0',
             'cookie_consent_enabled'=> isset($_POST['cookie_consent_enabled']) ? '1' : '0',
+            'mail_driver'           => Validator::sanitize($_POST['mail_driver'] ?? 'mail'),
+            'smtp_host'             => Validator::sanitize($_POST['smtp_host'] ?? ''),
+            'smtp_port'             => Validator::sanitize($_POST['smtp_port'] ?? '587'),
+            'smtp_username'         => Validator::sanitize($_POST['smtp_username'] ?? ''),
+            'smtp_password'         => $_POST['smtp_password'] ?? '',
+            'smtp_encryption'       => Validator::sanitize($_POST['smtp_encryption'] ?? 'tls'),
+            'smtp_from_email'       => Validator::sanitizeEmail($_POST['smtp_from_email'] ?? ''),
+            'smtp_from_name'        => Validator::sanitize($_POST['smtp_from_name'] ?? ''),
         ];
 
         // Handles logo & favicon uploads
@@ -121,6 +129,50 @@ foreach ($rows as $r) {
         <div class="col-12">
             <label class="form-label">Google Maps Embed iframe URL</label>
             <input type="url" name="map_embed_url" class="form-control" value="<?php echo e($allSettings['map_embed_url'] ?? ''); ?>">
+        </div>
+    </div>
+
+    <h5 class="fw-bold border-bottom pb-2 mb-3">Email & SMTP Configuration</h5>
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <label class="form-label">Mail Sending Method</label>
+            <select name="mail_driver" class="form-select">
+                <option value="mail" <?php echo (($allSettings['mail_driver'] ?? 'mail') === 'mail') ? 'selected' : ''; ?>>PHP mail() Function (Default)</option>
+                <option value="smtp" <?php echo (($allSettings['mail_driver'] ?? 'mail') === 'smtp') ? 'selected' : ''; ?>>SMTP Server (Recommended for Gmail/cPanel/SendGrid)</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Sender Email (From Address)</label>
+            <input type="email" name="smtp_from_email" class="form-control" placeholder="noreply@eliteali.com" value="<?php echo e($allSettings['smtp_from_email'] ?? ''); ?>">
+            <small class="text-muted">Must be a valid domain email to pass SPF checks.</small>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Sender Name</label>
+            <input type="text" name="smtp_from_name" class="form-control" placeholder="Elite Ali Website" value="<?php echo e($allSettings['smtp_from_name'] ?? ''); ?>">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">SMTP Host</label>
+            <input type="text" name="smtp_host" class="form-control" placeholder="smtp.gmail.com or mail.eliteali.com" value="<?php echo e($allSettings['smtp_host'] ?? ''); ?>">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">SMTP Port</label>
+            <input type="number" name="smtp_port" class="form-control" placeholder="587" value="<?php echo e($allSettings['smtp_port'] ?? '587'); ?>">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Encryption</label>
+            <select name="smtp_encryption" class="form-select">
+                <option value="tls" <?php echo (($allSettings['smtp_encryption'] ?? 'tls') === 'tls') ? 'selected' : ''; ?>>TLS (Port 587)</option>
+                <option value="ssl" <?php echo (($allSettings['smtp_encryption'] ?? 'tls') === 'ssl') ? 'selected' : ''; ?>>SSL (Port 465)</option>
+                <option value="none" <?php echo (($allSettings['smtp_encryption'] ?? 'tls') === 'none') ? 'selected' : ''; ?>>None</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">SMTP Username</label>
+            <input type="text" name="smtp_username" class="form-control" placeholder="your-email@gmail.com" value="<?php echo e($allSettings['smtp_username'] ?? ''); ?>">
+        </div>
+        <div class="col-md-12">
+            <label class="form-label">SMTP Password</label>
+            <input type="password" name="smtp_password" class="form-control" placeholder="••••••••••••" value="<?php echo e($allSettings['smtp_password'] ?? ''); ?>">
         </div>
     </div>
 

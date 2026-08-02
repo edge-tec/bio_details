@@ -189,24 +189,133 @@ function paginate(int $totalItems, int $perPage = 9, int $currentPage = 1): arra
 }
 
 /**
- * Send HTML Email notification
+ * Send HTML Email notification with dual Mail / SMTP support
  */
-function sendEmail(string $to, string $subject, string $messageBody, string $fromEmail = '', string $fromName = ''): bool {
+function sendEmail(string $to, string $subject, string $messageBody, string $replyToEmail = '', string $replyToName = ''): bool {
     if (empty($to) || !filter_var($to, FILTER_VALIDATE_EMAIL)) {
         return false;
     }
 
-    $siteName  = getSetting('site_name', SITE_NAME);
-    $fromEmail = (!empty($fromEmail) && filter_var($fromEmail, FILTER_VALIDATE_EMAIL)) ? $fromEmail : (getSetting('contact_email') ?: 'noreply@' . ($_SERVER['HTTP_HOST'] ?? 'eliteali.com'));
-    $fromName  = !empty($fromName) ? $fromName : $siteName;
+    $siteName   = getSetting('site_name', SITE_NAME);
+    $hostDomain = parse_url(SITE_URL, PHP_URL_HOST) ?: ($_SERVER['HTTP_HOST'] ?? 'eliteali.com');
+    $hostDomain = preg_replace('/^www\./i', '', $hostDomain);
 
+    $fromEmail = getSetting('smtp_from_email') ?: ('noreply@' . $hostDomain);
+    if (!filter_var($fromEmail, FILTER_VALIDATE_EMAIL)) {
+        $fromEmail = 'noreply@' . $hostDomain;
+    }
+    $fromName = getSetting('smtp_from_name') ?: $siteName;
+
+    $replyToEmail = (!empty($replyToEmail) && filter_var($replyToEmail, FILTER_VALIDATE_EMAIL)) ? $replyToEmail : $fromEmail;
+    $replyToName  = !empty($replyToName) ? $replyToName : $replyToEmail;
+
+    $mailDriver = getSetting('mail_driver', 'mail');
+
+    // Option 1: SMTP socket sending if SMTP is configured and enabled
+    if ($mailDriver === 'smtp' && !empty(getSetting('smtp_host'))) {
+        try {
+            $smtpResult = sendSmtpEmail($to, $subject, $messageBody, $fromEmail, $fromName, $replyToEmail, $replyToName);
+            if ($smtpResult) return true;
+        } catch (Throwable $e) {
+            // Fallback to PHP mail if SMTP fails
+        }
+    }
+
+    // Option 2: Standard PHP mail() with DMARC-compliant headers
     $headers  = "MIME-Version: 1.0" . "\r\n";
     $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
     $headers .= "From: {$fromName} <{$fromEmail}>" . "\r\n";
-    $headers .= "Reply-To: {$fromEmail}" . "\r\n";
+    $headers .= "Reply-To: {$replyToName} <{$replyToEmail}>" . "\r\n";
     $headers .= "X-Mailer: PHP/" . phpversion();
 
-    return @mail($to, $subject, $messageBody, $headers);
+    return @mail($to, $subject, $messageBody, $headers, "-f" . $fromEmail);
+}
+
+/**
+ * Send Email via Direct Socket SMTP (TLS / SSL support)
+ */
+function sendSmtpEmail(string $to, string $subject, string $htmlBody, string $fromEmail, string $fromName, string $replyToEmail, string $replyToName): bool {
+    $smtpHost = getSetting('smtp_host');
+    $smtpPort = (int)(getSetting('smtp_port') ?: 587);
+    $smtpUser = getSetting('smtp_username');
+    $smtpPass = getSetting('smtp_password');
+    $smtpEnc  = strtolower(getSetting('smtp_encryption', 'tls'));
+
+    $prefix = '';
+    if ($smtpEnc === 'ssl' || $smtpPort === 465) {
+        $prefix = 'ssl://';
+    }
+
+    $socket = @fsockopen($prefix . $smtpHost, $smtpPort, $errno, $errstr, 15);
+    if (!$socket) {
+        return false;
+    }
+
+    $read = function() use ($socket) {
+        $response = '';
+        while ($str = fgets($socket, 512)) {
+            $response .= $str;
+            if (substr($str, 3, 1) === ' ') break;
+        }
+        return $response;
+    };
+
+    $write = function($cmd) use ($socket) {
+        fputs($socket, $cmd . "\r\n");
+    };
+
+    $read();
+    $write("EHLO " . ($smtpHost ?: 'localhost'));
+    $read();
+
+    if ($smtpEnc === 'tls' && $smtpPort !== 465) {
+        $write("STARTTLS");
+        $starttlsResp = $read();
+        if (strpos($starttlsResp, '220') !== 0) {
+            fclose($socket);
+            return false;
+        }
+        stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT | STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT);
+        $write("EHLO " . ($smtpHost ?: 'localhost'));
+        $read();
+    }
+
+    if (!empty($smtpUser) && !empty($smtpPass)) {
+        $write("AUTH LOGIN");
+        $read();
+        $write(base64_encode($smtpUser));
+        $read();
+        $write(base64_encode($smtpPass));
+        $authResp = $read();
+        if (strpos($authResp, '235') !== 0) {
+            fclose($socket);
+            return false;
+        }
+    }
+
+    $write("MAIL FROM: <{$fromEmail}>");
+    $read();
+    $write("RCPT TO: <{$to}>");
+    $read();
+
+    $write("DATA");
+    $read();
+
+    $headers  = "MIME-Version: 1.0\r\n";
+    $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+    $headers .= "From: {$fromName} <{$fromEmail}>\r\n";
+    $headers .= "To: <{$to}>\r\n";
+    $headers .= "Reply-To: {$replyToName} <{$replyToEmail}>\r\n";
+    $headers .= "Subject: {$subject}\r\n";
+    $headers .= "Date: " . date('r') . "\r\n";
+
+    $write($headers . "\r\n" . $htmlBody . "\r\n.");
+    $dataResp = $read();
+
+    $write("QUIT");
+    fclose($socket);
+
+    return strpos($dataResp, '250') === 0;
 }
 
 /**
