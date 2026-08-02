@@ -12,6 +12,12 @@ $page = $_GET['page'] ?? 'dashboard';
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
     <meta charset="<?php echo CHARSET; ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo e($adminTitle ?? 'Admin Panel'); ?> - <?php echo SITE_NAME; ?></title>
