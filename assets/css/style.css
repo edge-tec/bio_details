@@ -44,8 +44,8 @@
     --bg-secondary: #FFFFFF;
     --bg-tertiary: #F1F5F9;
     --bg-card: #FFFFFF;
-    --bg-glass: rgba(255, 255, 255, 0.75);
-    --bg-glass-border: rgba(255, 255, 255, 0.3);
+    --bg-glass: rgba(255, 255, 255, 0.85);
+    --bg-glass-border: rgba(255, 255, 255, 0.4);
     --text-primary: #1E293B;
     --text-secondary: #475569;
     --text-muted: #94A3B8;
@@ -103,7 +103,7 @@
     --bg-secondary: #111827;
     --bg-tertiary: #1E293B;
     --bg-card: #1A2332;
-    --bg-glass: rgba(17, 24, 39, 0.8);
+    --bg-glass: rgba(17, 24, 39, 0.85);
     --bg-glass-border: rgba(56, 189, 248, 0.15);
     --text-primary: #F1F5F9;
     --text-secondary: #CBD5E1;
@@ -233,7 +233,7 @@ img {
    ============================================ */
 
 .glass-nav {
-    background: var(--bg-glass);
+    background: var(--bg-glass) !important;
     backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
     -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
     border-bottom: 1px solid var(--bg-glass-border);
@@ -259,19 +259,28 @@ img {
     font-family: var(--font-mono);
 }
 
+/* Explicit Reset for Navbar List */
+.navbar-nav {
+    list-style: none !important;
+    margin: 0;
+    padding: 0;
+}
+
 .glass-nav .nav-link {
-    color: var(--text-secondary);
+    color: var(--text-secondary) !important;
     font-weight: 500;
     font-size: var(--font-size-sm);
-    padding: 0.5rem 1rem !important;
+    padding: 0.5rem 0.85rem !important;
     border-radius: var(--radius-sm);
     transition: all var(--transition-fast);
     position: relative;
+    display: inline-flex;
+    align-items: center;
 }
 
 .glass-nav .nav-link:hover,
 .glass-nav .nav-link.active {
-    color: var(--primary);
+    color: var(--primary) !important;
     background: rgba(var(--primary-rgb), 0.08);
 }
 
@@ -285,6 +294,14 @@ img {
     height: 2px;
     background: var(--primary);
     border-radius: var(--radius-full);
+}
+
+@media (min-width: 992px) {
+    .navbar-expand-lg .navbar-nav {
+        flex-direction: row !important;
+        align-items: center;
+        gap: 0.25rem;
+    }
 }
 
 /* Theme Toggle Button */
