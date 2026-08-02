@@ -160,3 +160,30 @@ function getSetting(string $key, string $default = ''): string {
     }
     return $settingsCache[$key] ?? $default;
 }
+
+/**
+ * Calculate pagination offsets and metadata.
+ *
+ * @param int $totalItems  Total number of records
+ * @param int $perPage     Items per page
+ * @param int $currentPage Current page number (1-indexed)
+ * @return array Pagination data array
+ */
+function paginate(int $totalItems, int $perPage = 9, int $currentPage = 1): array {
+    $perPage     = max(1, $perPage);
+    $totalPages  = max(1, (int)ceil($totalItems / $perPage));
+    $currentPage = max(1, min($currentPage, $totalPages));
+    $offset      = ($currentPage - 1) * $perPage;
+
+    return [
+        'total_items'  => $totalItems,
+        'per_page'     => $perPage,
+        'current_page' => $currentPage,
+        'total_pages'  => $totalPages,
+        'offset'       => $offset,
+        'has_prev'     => $currentPage > 1,
+        'has_next'     => $currentPage < $totalPages,
+        'prev_page'    => max(1, $currentPage - 1),
+        'next_page'    => min($totalPages, $currentPage + 1),
+    ];
+}
