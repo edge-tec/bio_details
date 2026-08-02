@@ -31,6 +31,11 @@ $page = $_GET['page'] ?? 'home';
 $page = trim($page, '/');
 $page = preg_replace('/[^a-zA-Z0-9_-]/', '', $page);
 
+// Fallback for root index requests or indexphp rewrites
+if (empty($page) || $page === 'index' || $page === 'indexphp') {
+    $page = 'home';
+}
+
 if (!isset($routes[$page])) {
     $page = '404';
     http_response_code(404);
