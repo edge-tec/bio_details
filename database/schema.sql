@@ -363,7 +363,6 @@ CREATE TABLE IF NOT EXISTS `certificates` (
 -- ============================================
 CREATE TABLE IF NOT EXISTS `achievements` (
     `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    `title` VARCHAR(255) NOT NULL,
     `description` TEXT DEFAULT NULL,
     `icon` VARCHAR(100) DEFAULT 'bi-trophy',
     `achievement_date` DATE DEFAULT NULL,
@@ -410,7 +409,8 @@ CREATE TABLE IF NOT EXISTS `newsletter_subscribers` (
 
 -- Default admin user (password: Admin@123)
 INSERT INTO `users` (`name`, `email`, `password`, `role`, `is_active`) VALUES
-('Admin', 'admin@example.com', '$2y$12$LJ6P2Fd1c2v3dZ5C1g7YpOPXlZ7VQ5W0M.Q9Jx4VVmEq1Y9BS6qHa', 'admin', 1);
+('Admin', 'admin@example.com', '$2y$12$4K0BMKkjHCB3U0IdYCGI3evyZgPRpu61n1gSiZjJfArmOPxkvFgIq', 'admin', 1)
+ON DUPLICATE KEY UPDATE `password` = '$2y$12$4K0BMKkjHCB3U0IdYCGI3evyZgPRpu61n1gSiZjJfArmOPxkvFgIq', `login_attempts` = 0, `locked_until` = NULL;
 
 -- Default profile
 INSERT INTO `profile` (`user_id`, `full_name`, `profession`, `bio_short`, `bio_full`, `birthday`, `nationality`, `location`, `languages`, `email`, `phone`, `website`, `mission`, `vision`, `goals`, `typing_texts`, `stats_experience_years`, `stats_projects`, `stats_clients`, `stats_awards`) VALUES
