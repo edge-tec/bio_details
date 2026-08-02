@@ -41,7 +41,13 @@ if (!isset($routes[$page])) {
     http_response_code(404);
 }
 
-$pageFile = PAGES_PATH . $routes[$page];
+// Append .php extension if not present in route value
+$routeFile = $routes[$page];
+if (!str_ends_with($routeFile, '.php')) {
+    $routeFile .= '.php';
+}
+
+$pageFile = PAGES_PATH . $routeFile;
 
 if (!file_exists($pageFile)) {
     $page = '404';
