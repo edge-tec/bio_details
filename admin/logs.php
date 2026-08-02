@@ -14,7 +14,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'clear') {
     }
 }
 
-$logs = $db->fetchAll("SELECT l.*, u.name as user_name FROM activity_logs l LEFT JOIN users u ON l.user_id = u.id ORDER BY l.created_at DESC LIMIT 100");
+$logs = $db->fetchAll("SELECT l.*, u.name as user_name FROM activity_logs l LEFT JOIN users u ON l.user_id = u.id ORDER BY l.created_at DESC LIMIT 100") ?: [];
 ?>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
