@@ -22,7 +22,7 @@ if ($action === 'delete' && $id > 0) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (Session::validateCsrfToken($_POST[CSRF_TOKEN_NAME] ?? '')) {
         $title = Validator::sanitize($_POST['title'] ?? '');
-        $slug = Validator::slugify($_POST['slug'] ?: $title);
+        $slug = slugify($_POST['slug'] ?: $title);
         $slug = (new SEO())->uniqueSlug($slug, 'portfolio', $id ?: null);
 
         $data = [

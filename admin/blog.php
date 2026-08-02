@@ -14,7 +14,7 @@ if (isset($_POST['category_action'])) {
     if (Session::validateCsrfToken($_POST[CSRF_TOKEN_NAME] ?? '')) {
         $catName = Validator::sanitize($_POST['category_name'] ?? '');
         if ($catName) {
-            $catSlug = (new SEO())->uniqueSlug(Validator::slugify($catName), 'blog_categories');
+            $catSlug = (new SEO())->uniqueSlug(slugify($catName), 'blog_categories');
             $db->insert('blog_categories', ['name' => $catName, 'slug' => $catSlug]);
             Session::flash('success', 'Category added.');
         }
@@ -37,7 +37,7 @@ if ($action === 'delete' && $id > 0) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['category_action'])) {
     if (Session::validateCsrfToken($_POST[CSRF_TOKEN_NAME] ?? '')) {
         $title = Validator::sanitize($_POST['title'] ?? '');
-        $slug = Validator::slugify($_POST['slug'] ?: $title);
+        $slug = slugify($_POST['slug'] ?: $title);
         $slug = (new SEO())->uniqueSlug($slug, 'blog', $id ?: null);
         $content = $_POST['content'] ?? '';
 
