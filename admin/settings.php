@@ -98,8 +98,9 @@ foreach ($rows as $r) {
     <h5 class="fw-bold border-bottom pb-2 mb-3">Contact & Social Links</h5>
     <div class="row g-3 mb-4">
         <div class="col-md-4">
-            <label class="form-label">Contact Email</label>
-            <input type="email" name="contact_email" class="form-control" value="<?php echo e($allSettings['contact_email'] ?? ''); ?>">
+            <label class="form-label">Contact Email (Receives Form Messages) *</label>
+            <input type="email" name="contact_email" class="form-control" placeholder="affscashnet@gmail.com" value="<?php echo e($allSettings['contact_email'] ?? ''); ?>">
+            <small class="text-muted">User messages will be sent automatically to this address.</small>
         </div>
         <div class="col-md-4">
             <label class="form-label">Contact Phone</label>

@@ -22,14 +22,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 if ($validator->passes()) {
                     try {
-                        $db->insert('contact_messages', [
+                        $contactData = [
                             'name'       => Validator::sanitize($_POST['name']),
                             'email'      => Validator::sanitizeEmail($_POST['email']),
                             'phone'      => Validator::sanitize($_POST['phone'] ?? ''),
                             'subject'    => Validator::sanitize($_POST['subject'] ?? ''),
                             'message'    => Validator::sanitize($_POST['message']),
                             'ip_address' => getClientIp(),
-                        ]);
+                        ];
+                        $db->insert('contact_messages', $contactData);
+
+                        // Send automatic email notification to admin email address
+                        sendContactNotification($contactData);
+
                         Session::flash('success', 'Thank you! Your message has been sent successfully. I\'ll get back to you soon.');
                     } catch (Exception $e) {
                         Session::flash('error', 'Sorry, something went wrong. Please try again later.');
