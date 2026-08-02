@@ -4,6 +4,9 @@
  * @package PersonalBiography
  */
 
+// Enable output buffering to prevent header errors during redirects
+ob_start();
+
 define('APP_RUNNING', true);
 
 require_once __DIR__ . '/../config/config.php';
@@ -58,3 +61,6 @@ $adminTitle = ucfirst(str_replace('_', ' ', $page)) . ' Manager';
 require_once TEMPLATES_PATH . 'admin/header.php';
 require_once $adminFile;
 require_once TEMPLATES_PATH . 'admin/footer.php';
+
+// Flush output buffer
+ob_end_flush();
