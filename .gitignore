@@ -1,0 +1,16 @@
+# Logs
+logs/*.log
+*.log
+
+# Sensitive uploads (optional)
+# assets/uploads/*
+# !assets/uploads/.gitkeep
+
+# Environment / IDE
+.DS_Store
+.vscode/
+.idea/
+*.swp
+
+# OS generated files
+Thumbs.db

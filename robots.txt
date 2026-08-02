@@ -1,0 +1,33 @@
+# ============================================
+# robots.txt for Dynamic Personal Biography Website
+# ============================================
+
+User-agent: *
+Allow: /
+Allow: /assets/
+Disallow: /admin/
+Disallow: /config/
+Disallow: /classes/
+Disallow: /functions/
+Disallow: /templates/
+Disallow: /database/
+Disallow: /logs/
+
+# AI Crawlers - Explicitly allowed for AI search optimization
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+# Sitemap URL
+Sitemap: http://localhost/about bio/sitemap.xml
