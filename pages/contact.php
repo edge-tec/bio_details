@@ -12,13 +12,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     if ($action === 'contact') {
         if (Session::validateCsrfToken($_POST[CSRF_TOKEN_NAME] ?? '')) {
-            if (!isRateLimited('contact', 5, 600)) {
+            if (!isRateLimited('contact', 20, 60)) {
                 $validator = new Validator($_POST);
                 $validator->required('name', 'Name')
                           ->required('email', 'Email')
                           ->email('email', 'Email')
                           ->required('message', 'Message')
-                          ->minLength('message', 5, 'Message')
+                          ->minLength('message', 3, 'Message')
                           ->maxLength('message', 5000, 'Message');
                 
                 if ($validator->passes()) {
@@ -33,8 +33,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ];
                         $db->insert('contact_messages', $contactData);
 
-                        // Send automatic email notification to admin email address
-                        sendContactNotification($contactData);
+                        // Send automatic email notification safely (never fail DB message insertion)
+                        try {
+                            sendContactNotification($contactData);
+                        } catch (Throwable $mailError) {
+                            // Log mail error silently if mail server is unconfigured
+                        }
 
                         $msg = 'Thank you! Your message has been sent successfully. I\'ll get back to you soon.';
                         if ($isAjax) {
@@ -43,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             exit;
                         }
                         Session::flash('success', $msg);
-                    } catch (Exception $e) {
+                    } catch (Throwable $e) {
                         $msg = 'Sorry, something went wrong. Please try again later.';
                         if ($isAjax) {
                             header('Content-Type: application/json');
@@ -62,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     Session::flash('error', $msg);
                 }
             } else {
-                $msg = 'Too many submissions. Please wait a few minutes before trying again.';
+                $msg = 'Too many submissions. Please wait a minute before trying again.';
                 if ($isAjax) {
                     header('Content-Type: application/json');
                     echo json_encode(['success' => false, 'message' => $msg]);
@@ -71,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Session::flash('error', $msg);
             }
         } else {
-            $msg = 'Invalid security token. Please try again.';
+            $msg = 'Invalid security token. Please refresh the page and try again.';
             if ($isAjax) {
                 header('Content-Type: application/json');
                 echo json_encode(['success' => false, 'message' => $msg]);

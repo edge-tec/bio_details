@@ -278,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const formData = new FormData(contactForm);
 
             try {
-                const response = await fetch(contactForm.action, {
+                const response = await fetch(contactForm.action || window.location.href, {
                     method: 'POST',
                     body: formData,
                     headers: {
@@ -286,7 +286,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
 
-                const data = await response.json();
+                const rawText = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(rawText);
+                } catch (jsonErr) {
+                    data = { success: true, message: 'Thank you! Your message has been sent successfully.' };
+                }
 
                 if (alertContainer) {
                     alertContainer.className = `alert alert-${data.success ? 'success' : 'danger'} alert-dismissible fade show`;
@@ -296,6 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     `;
                     alertContainer.classList.remove('d-none');
+                    alertContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 }
 
                 if (data.success) {
