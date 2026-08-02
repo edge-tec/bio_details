@@ -69,11 +69,25 @@ define('UPLOADS_PATH', ROOT_PATH . 'assets/uploads/');
 define('LOGS_PATH', ROOT_PATH . 'logs/');
 
 // ============================================
-// SITE SETTINGS
+// SITE SETTINGS & DYNAMIC URL DETECTION
 // ============================================
 
-/** Site URL - change this to your domain */
-define('SITE_URL', 'http://localhost/about bio/');
+/** Automatically detect Site Protocol & Host URL */
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || ($_SERVER['SERVER_PORT'] ?? 80) == 443 ? 'https://' : 'http://';
+if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+    $protocol = 'https://';
+}
+$host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
+$dir = rtrim(dirname($scriptName), '/');
+// Exclude /admin from base URL if inside admin
+if (substr($dir, -6) === '/admin') {
+    $dir = substr($dir, 0, -6);
+}
+$baseUrl = $protocol . $host . ($dir ? $dir . '/' : '/');
+
+/** Site URL */
+define('SITE_URL', $baseUrl);
 
 /** Site name */
 define('SITE_NAME', 'Dynamic Personal Biography');
